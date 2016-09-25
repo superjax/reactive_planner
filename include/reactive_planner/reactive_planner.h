@@ -10,6 +10,8 @@
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Vector3.h>
 
+#define G 9.80665
+
 namespace reactive_planner
 {
 
@@ -37,11 +39,15 @@ private:
   double t1_, t2_, s1_, s2_;
   double k0_, kg_;
   double hover_throttle_;
+  double max_force_;
+  double mass_;
+  double k_speed_;
+  double search_range_;
 
   // Local Variables
   double dg_;
-  Eigen::Vector2d goal_;
-  Eigen::Vector2d command_;
+  Eigen::Vector3d goal_;
+  Eigen::Vector3d desired_acceleration_;
   nav_msgs::Odometry current_state_;
 
 
@@ -53,6 +59,7 @@ private:
   // Helper Functions
   double sign(double x);
   double sigmoid(double x);
+  double sat(double x, double max);
 };
 
 } // namespace reactive_planner

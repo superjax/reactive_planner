@@ -1,43 +1,58 @@
+<!-- This is a launch file that runs the bare minimum requirements to get -->
+<!-- gazebo running.  It requires a relative_nav::Command on /command -->
+<!-- to move the hex, and outputs imu, altimeter, laserscan and RGBD images -->
+<!-- as well as a relative_nav::FilterState message on /global_state  -->
+<!-- a geometry_msgs::StampedTransform on /mocap to imitate motion capture -->
+
+
 <launch>
+  <arg name="mav_name"            default="shredder"/>
+  <arg name="enable_ground_truth" default="true" />
+  <arg name="log_file"            default="$(arg mav_name)" />
+  <arg name="color"               default="Blue"/>
+  <arg name="x"                   default="0"/>
+  <arg name="y"                   default="0"/>
+  <arg name="z"                   default="0.1"/>
+  <arg name="yaw"                 default="0"/>
 
-  <!-- Rosbag -->
-  <node name="play" pkg="rosbag" type="play" args="-s 45 /home/iman/rosbag/vo_toggle_2015-07-21-12-06-34.bag">
-    <remap from="vo" to="old_vo"/>
-  </node>
+  <arg name="world_file" default="basic.world"/>
 
-  <!-- VO_Toggle -->
-  <node name="xbox" pkg="joy" type="joy_node"/>
-  <node name="joy_commander" pkg="joy_commander" type="joy_commander_node">
-    <remap from="relative_state" to="estimated_state"/>
-  </node>
-  <node name="vo_toggle" pkg="vo_toggle" type="vo_toggle_node" output="screen"/>
+  <!-- Start Simulator -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find fcu_sim)/worlds/$(arg world_file)"/>
+    <arg name="paused" value="true"/>
+    <arg name="gui" value="true"/>
+  </include>
 
+  <!-- Spawn in Gazebo -->
+  <include file="$(find fcu_sim)/launch/spawn_mav.launch">
+    <arg name="mav_name"            value="$(arg mav_name)" />
+    <arg name="model"               value="$(find fcu_sim)/urdf/$(arg mav_name)/$(arg mav_name)_base.xacro" />
+    <arg name="enable_ground_truth" value="true" />
+    <arg name="x"                   value="$(arg x)"/>
+    <arg name="y"                   value="$(arg y)"/>
+    <arg name="z"                   value="$(arg z)"/>
+    <arg name="yaw"                 value="$(arg yaw)"/>
+    <arg name="color"               value="$(arg color)"/>
+  </include>
+
+  <!-- Goal Publisher -->
+  <!-- <node pkg="rostopic" type="rostopic" name="goal_pub" args="pub /goal geometry_msgs/Vector3 &quot;x: 20.0 &#xA; y: 20.0 &#xA; z:-5.0&quot;"/> -->
+
+  <!-- Is Flying Publisher -->
+  <node pkg="rostopic" type="rostopic" name="is_flying_pub" args="pub /is_flying std_msgs/Bool true"/>
 
   <!--Estimation-->
-  <node name="start_trigger"       pkg="rmekf"               type="start_trigger.py"/> 
-  <rosparam command="load" file="$(find relative_nav_common)/param/shredder.yaml"/>
-  <node name="rmekf"               pkg="rmekf"               type="rmekf_node"> 
-    <rosparam command="load" file="$(find rmekf)/params/estimator.yaml" /> 
-    <remap from="altimeter" to="/mavros/distance_sensor"/> 
-    <remap from="relative_state" to="estimated_state"/> 
-  </node> 
+   <!-- <node name="ekf" pkg="ros_copter"  type="ekf" output="screen">
+     <rosparam command="load" file="$(find ros_copter)/params/estimator.yaml" />
+     <remap from="/imu/data" to="/shredder/imu"/>
+     <remap from="mocap" to="/shredder/ground_truth/odometry"/>
+   </node> -->
+  <!-- Waypoint Manager -->
+  <!-- <node name="waypoint_manager" pkg="ros_copter" type="waypoint_manager.py"/> -->
 
-  <!-- Visualization -->
-  <!-- <node name="obstacle_rviz"  pkg="rviz"    type="rviz" machine="$(arg base_station)"  args="-d /home/$(arg base_station)/obstacle/src/path_planner_hotdog/rviz/path_planner_hotdog.rviz" /> -->
-<!--   <node name="map_rviz" pkg="rviz" type="rviz" machine="$(arg base_station)"  args="-d /home/$(arg base_station)/obstacle/src/hex_map/rviz/map_visualizer.rviz" /> -->
-  <node name="rqt_graph"         pkg="rqt_graph" type="rqt_graph"/>
-  <node name="plot_x" pkg="rqt_plot" type="rqt_plot" args="/relative_state/transform/translation/x estimated_state/transform/translation/x"/>
-  <node name="plot_y" pkg="rqt_plot" type="rqt_plot" args="/relative_state/transform/translation/y estimated_state/transform/translation/y"/>
-
-
-  <!-- Truth -->
-  <node name="truth" pkg="rotor_estimator" type="truth">
-    <remap from="mocap" to="shredder/CG"/>
-  </node>
-
-  <!--Record-->
-<!--   <node name="record" pkg="rosbag" type="record" args="-o Waypoint_Collect /imu/data /mavros/distance_sensor /vo /keyframe /relative_state /node /edge /goal /raw_desired_state /desired_state"/> -->
-
-  <!--<node name="record_debug" pkg="rosbag" type="record" args="-o debug /imu/data /mavros/distance_sensor /command /relative_state /node /edge /goal /raw_desired_state /desired_state /joy_desired_state /mavlink/to /is_flying"/>-->
-
+  <!-- FPV -->
+  <!-- <node name="fpv" pkg="image_view" type="image_view">
+    <remap from="image" to="/$(arg mav_name)/camera/rgb/image_raw"/>
+  </node> -->
 </launch>
