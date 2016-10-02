@@ -36,20 +36,31 @@
     <arg name="color"               value="$(arg color)"/>
   </include>
 
-  <!-- Goal Publisher -->
-  <!-- <node pkg="rostopic" type="rostopic" name="goal_pub" args="pub /goal geometry_msgs/Vector3 &quot;x: 20.0 &#xA; y: 20.0 &#xA; z:-5.0&quot;"/> -->
+  <!-- Position Controller --> -->
+  <node name="controller" pkg="ros_copter" type="controller" output="screen">
+    <remap from="estimate" to="$(arg mav_name)/ground_truth/odometry"/>
+    <remap from="waypoint" to="command"/>
+    <param name="max_u" value="10.0"/>
+    <param name="max_v" value="10.0"/>
+    <param name="max_roll" value="0.785"/>
+    <param name="max_pitch" value="0.785"/>
+    <param name="psi_P" value="5.0"/>
+    <param name="psi_I" value="0.0"/>
+    <param name="psi_D" value="0.0"/>
+  </node>
 
   <!-- Is Flying Publisher -->
   <node pkg="rostopic" type="rostopic" name="is_flying_pub" args="pub /is_flying std_msgs/Bool true"/>
 
-  <!--Estimation-->
-   <!-- <node name="ekf" pkg="ros_copter"  type="ekf" output="screen">
-     <rosparam command="load" file="$(find ros_copter)/params/estimator.yaml" />
-     <remap from="/imu/data" to="/shredder/imu"/>
-     <remap from="mocap" to="/shredder/ground_truth/odometry"/>
-   </node> -->
   <!-- Waypoint Manager -->
-  <!-- <node name="waypoint_manager" pkg="ros_copter" type="waypoint_manager.py"/> -->
+  <node name="waypoint_manager" pkg="ros_copter" type="waypoint_manager.py"/>
+
+  <!-- Reactive Planner -->
+  <!-- <node name="reactive_planner" pkg="reactive_planner" type="reactive_planner_node"> -->
+    <!-- <rosparam command="load" file="$(find reactive_planner)/param/planner.yaml"/> -->
+    <!-- <remap from="state" to="$(arg mav_name)/ground_truth/odometry"/> -->
+    <!-- <remap from="goal" to="waypoint"/> -->
+  <!-- </node> -->
 
   <!-- FPV -->
   <!-- <node name="fpv" pkg="image_view" type="image_view">

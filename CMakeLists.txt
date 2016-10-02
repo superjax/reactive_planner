@@ -8,10 +8,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   cmake_modules
+  dynamic_reconfigure
 )
 find_package(Eigen REQUIRED)
 
 
+generate_dynamic_reconfigure_options(
+  cfg/Planner.cfg
+)
 catkin_package()
 
 ###########
