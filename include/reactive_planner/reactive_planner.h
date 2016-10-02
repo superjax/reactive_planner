@@ -45,16 +45,17 @@ private:
   double max_force_;
   double mass_;
   double k_speed_;
-  double search_range_;
+  double horizontal_search_range_;
+  double vertical_search_range_;
   double nominal_speed_;
   double k_strafe_, max_strafe_;
+  double max_yaw_rate_;
+  double laser_range_;
 
   // Local Variables
-  double dg_;
   Eigen::Vector3d goal_;
   Eigen::Vector3d desired_acceleration_;
   nav_msgs::Odometry current_state_;
-
 
   // Topic Callback Functions
   void scanCallback(const sensor_msgs::PointCloudConstPtr &msg);
@@ -75,3 +76,4 @@ private:
 } // namespace reactive_planner
 
 #endif // reactivePlanner_H
+
