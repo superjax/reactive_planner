@@ -39,7 +39,7 @@ reactivePlanner::reactivePlanner() :
 
   // Setup publishers and subscribers
   scan_sub_ = nh_.subscribe("scan", 1, &reactivePlanner::scanCallback, this);
-  state_sub_ = nh_.subscribe("shredder/ground_truth/odometry", 1, &reactivePlanner::stateCallback, this);
+  state_sub_ = nh_.subscribe("state", 1, &reactivePlanner::stateCallback, this);
   goal_sub_ = nh_.subscribe("waypoint", 1, &reactivePlanner::goalCallback, this);
 
   command_pub_ = nh_.advertise<fcu_common::ExtendedCommand>("high_level_command", 1);
@@ -233,5 +233,3 @@ double reactivePlanner::sat(double x, double max)
 
 
 } // namespace reactive_planner
-
-
