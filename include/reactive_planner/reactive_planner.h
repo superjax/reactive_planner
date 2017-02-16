@@ -6,7 +6,7 @@
 
 
 #include <sensor_msgs/PointCloud.h>
-#include <fcu_common/ExtendedCommand.h>
+#include <fcu_common/Command.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Vector3.h>
 
@@ -60,7 +60,7 @@ private:
   // Topic Callback Functions
   void scanCallback(const sensor_msgs::PointCloudConstPtr &msg);
   void stateCallback(const nav_msgs::Odometry msg);
-  void goalCallback(const fcu_common::ExtendedCommandConstPtr &msg);
+  void goalCallback(const fcu_common::CommandConstPtr &msg);
 
   // Dynamic Reconfigure
   dynamic_reconfigure::Server<reactive_planner::PlannerConfig> _server;

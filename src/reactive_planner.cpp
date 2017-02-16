@@ -42,7 +42,7 @@ reactivePlanner::reactivePlanner() :
   state_sub_ = nh_.subscribe("state", 1, &reactivePlanner::stateCallback, this);
   goal_sub_ = nh_.subscribe("waypoint", 1, &reactivePlanner::goalCallback, this);
 
-  command_pub_ = nh_.advertise<fcu_common::ExtendedCommand>("high_level_command", 1);
+  command_pub_ = nh_.advertise<fcu_common::Command>("high_level_command", 1);
 
   // Initialize current state
   current_state_.twist.twist.linear.x = 0;
@@ -185,8 +185,8 @@ void reactivePlanner::scanCallback(const sensor_msgs::PointCloudConstPtr &msg)
   Eigen::Vector2d dodger_output = attract + repulse;
 
   // Pack Up and Send Command
-  fcu_common::ExtendedCommand cmd;
-  cmd.mode = fcu_common::ExtendedCommand::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;
+  fcu_common::Command cmd;
+  cmd.mode = fcu_common::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;
   cmd.F = goal_.z();
   cmd.x = sat(desired_velocity, nominal_speed_);
   cmd.y = sat(k_strafe_*dodger_output.x(), max_strafe_);
@@ -197,8 +197,6 @@ void reactivePlanner::scanCallback(const sensor_msgs::PointCloudConstPtr &msg)
   cout << "min_dist = " << min_distance << " out_speed = " << cmd.x << " t = " << time_to_collision << "unsat_speed = " << desired_velocity << "  \n\n";
 
   command_pub_.publish(cmd);
-
-
 }
 
 void reactivePlanner::stateCallback(const nav_msgs::Odometry msg)
@@ -206,9 +204,9 @@ void reactivePlanner::stateCallback(const nav_msgs::Odometry msg)
   current_state_ = msg;
 }
 
-void reactivePlanner::goalCallback(const fcu_common::ExtendedCommandConstPtr &msg)
+void reactivePlanner::goalCallback(const fcu_common::CommandConstPtr &msg)
 {
-  ROS_ASSERT(msg->mode == fcu_common::ExtendedCommand::MODE_XPOS_YPOS_YAW_ALTITUDE);
+  ROS_ASSERT(msg->mode == fcu_common::Command::MODE_XPOS_YPOS_YAW_ALTITUDE);
   goal_.x()= msg->x;
   goal_.y() = msg->y;
   goal_.z() = msg->F;
