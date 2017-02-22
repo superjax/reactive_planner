@@ -36,7 +36,7 @@ include_directories(
 add_executable(reactive_planner_node src/reactive_planner_node.cpp src/reactive_planner.cpp)
 
 ## Add cmake target dependencies of the executable/library
-add_dependencies(reactive_planner_node relative_nav_msgs_generate_messages_cpp)
+add_dependencies(reactive_planner_node relative_nav_msgs_generate_messages_cpp fcu_common_generate_messages_cpp)
 
 target_link_libraries(reactive_planner_node
   ${catkin_LIBRARIES}
